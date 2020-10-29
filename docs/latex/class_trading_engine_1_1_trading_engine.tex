@@ -1,0 +1,71 @@
+\hypertarget{class_trading_engine_1_1_trading_engine}{}\doxysection{Trading\+Engine.\+Trading\+Engine Class Reference}
+\label{class_trading_engine_1_1_trading_engine}\index{TradingEngine.TradingEngine@{TradingEngine.TradingEngine}}
+
+
+short description...  
+
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_aef89f392d1546f08e3b965b541fc0411}\label{class_trading_engine_1_1_trading_engine_aef89f392d1546f08e3b965b541fc0411}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self)
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_aca88ab69f8385ebaa0ae7843969d6fd6}\label{class_trading_engine_1_1_trading_engine_aca88ab69f8385ebaa0ae7843969d6fd6}} 
+def {\bfseries set\+\_\+initial\+\_\+data} (self, market\+\_\+data)
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a5fa388ff07a9b1b8e9a35be64c9b749d}\label{class_trading_engine_1_1_trading_engine_a5fa388ff07a9b1b8e9a35be64c9b749d}} 
+def {\bfseries train} (self)
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a43a477bf0cfe03cd774d39e0a494cd31}\label{class_trading_engine_1_1_trading_engine_a43a477bf0cfe03cd774d39e0a494cd31}} 
+def {\bfseries on\+\_\+market\+\_\+tick} (self, timestamp, symbol, bid\+\_\+price, bid\+\_\+size, ask\+\_\+price, ask\+\_\+size)
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a5085fe211b8d20768d95b0343d51fe27}\label{class_trading_engine_1_1_trading_engine_a5085fe211b8d20768d95b0343d51fe27}} 
+def {\bfseries check\+\_\+before\+\_\+prediction} (self)
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_aae217e8dd52b3e641a62039b8d329ba8}\label{class_trading_engine_1_1_trading_engine_aae217e8dd52b3e641a62039b8d329ba8}} 
+def {\bfseries check\+\_\+after\+\_\+prediction} (self)
+\item 
+def \mbox{\hyperlink{class_trading_engine_1_1_trading_engine_a366847cad0ea1a76c1ae99d97696f539}{predict}} (self)
+\begin{DoxyCompactList}\small\item\em Predicts next market movement on some period. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_aeaf4b6b3183bdb2031a8954dccc8729e}\label{class_trading_engine_1_1_trading_engine_aeaf4b6b3183bdb2031a8954dccc8729e}} 
+def {\bfseries commit\+\_\+on\+\_\+market} (self, action)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_aa7a7700bcde1f32787daa11c55691a70}\label{class_trading_engine_1_1_trading_engine_aa7a7700bcde1f32787daa11c55691a70}} 
+{\bfseries market\+\_\+data\+\_\+locked}
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a6d5bc563518d8a1601b4d620dd0b7617}\label{class_trading_engine_1_1_trading_engine_a6d5bc563518d8a1601b4d620dd0b7617}} 
+{\bfseries market\+\_\+data\+\_\+changed}
+\item 
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a89507c74928593fa5f7dd14230666ec6}\label{class_trading_engine_1_1_trading_engine_a89507c74928593fa5f7dd14230666ec6}} 
+{\bfseries market\+\_\+data}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+short description... 
+
+longer description 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_trading_engine_1_1_trading_engine_a366847cad0ea1a76c1ae99d97696f539}\label{class_trading_engine_1_1_trading_engine_a366847cad0ea1a76c1ae99d97696f539}} 
+\index{TradingEngine.TradingEngine@{TradingEngine.TradingEngine}!predict@{predict}}
+\index{predict@{predict}!TradingEngine.TradingEngine@{TradingEngine.TradingEngine}}
+\doxysubsubsection{\texorpdfstring{predict()}{predict()}}
+{\footnotesize\ttfamily def Trading\+Engine.\+Trading\+Engine.\+predict (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+
+
+Predicts next market movement on some period. 
+
+\begin{DoxyReturn}{Returns}
+Integer in \{-\/1, 0, 1\} meaning down, neutral, up. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Trading\+Engine.\+py\end{DoxyCompactItemize}

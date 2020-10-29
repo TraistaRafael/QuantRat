@@ -1,0 +1,14 @@
+'''
+Copyright 2020 by Traista Viorel-Rafael
+All rights reserved.
+This file is part of the Traista Viorel-Rafael - QuantRat project
+https://github.com/TraistaRafael/QuantRat
+Please see the LICENSE.txt
+'''
+
+import Simulation
+
+simulator = Simulation.ExchangeSimulator()
+simulator.start()
+
+
