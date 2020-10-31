@@ -19,6 +19,7 @@ from scipy.stats import linregress
 from matplotlib.pyplot import figure
 import time
 import random
+from os import path
 
 class TradingEngine :
     '''!
@@ -31,10 +32,15 @@ class TradingEngine :
         self.market_data_changed = False
         self.market_data = pd.DataFrame()
 
-        self.model_training_len = 800
+        self.model_training_len = 900
         self.model_testing_len = 200
         self.model_training_step = 100
-        
+
+        self.model = None
+
+        self.last_prediction_index = 0
+        self.prediction_step = 50
+
         print("TradingEngine __init__()")
 
 
@@ -62,12 +68,14 @@ class TradingEngine :
         history_ts = history_ts[history_ts["weightedPrice"] != 0]
         history_ts.reset_index(inplace=True)
 
-        train_test_ratio = 0.7
-        train_test_cut = int(len(history_ts.index) * train_test_ratio)
-        future_ts = history_ts[history_ts.index >= train_test_cut]
-        history_ts = history_ts[history_ts.index < train_test_cut]
-        history_ts.reset_index(inplace=True)
-        future_ts.reset_index(inplace=True)
+        print ("TradingEngine set intial market data len: {}".format(len(history_ts.index)))
+
+        # train_test_ratio = 0.7
+        # train_test_cut = int(len(history_ts.index) * train_test_ratio)
+        # future_ts = history_ts[history_ts.index >= train_test_cut]
+        # history_ts = history_ts[history_ts.index < train_test_cut]
+        # history_ts.reset_index(inplace=True)
+        # future_ts.reset_index(inplace=True)
 
         #Compute mid and smart price
         smart_price_list = list()
@@ -95,53 +103,6 @@ class TradingEngine :
         self.unlock_data()
 
 
-    def train(self) :
-        print("TradingEngine train()")
-        processed_data = self.process_timeseries_for_training(self.market_data, self.model_training_len, self.model_testing_len, self.model_training_step)
-        
-        total_samples = len(processed_data.index)
-        train_count = int(total_samples * train_test_ratio)
-    
-        train_ts = processed_data[processed_data.index < train_count]
-        test_ts = processed_data[processed_data.index >= train_count]
-
-        X_train = train_ts[["Stdev", "Variance", "Slope", "Stderr", "Movement"]]
-        y_train = list(train_ts["Response"])
-
-        X_test = test_ts[["Stdev", "Variance", "Slope", "Stderr", "Movement"]]
-        y_test = list(test_ts["Response"])
-
-        clf_ada = AdaBoostClassifier()
-        clf_ada.fit(X_train.values, y_train)
-
-        clf_rforest = RandomForestClassifier(n_estimators=100, min_samples_split=2)
-        clf_rforest.fit(X_train.values, y_train)
-
-
-    def on_market_tick(self, timestamp, symbol, bid_price, bid_size, ask_price, ask_size) :
-        print("TradingEngine on_market_tick()")
-
-        smart_price = FinanceUtils.get_smart_price(bid_price, bid_size, ask_price, ask_size)
-        mid_price = FinanceUtils.get_mid_price(bid_price, ask_price)
-
-        new_row = {
-            'timestamp': [timestamp],
-            'symbol': [symbol],
-            'weightedPrice': [0],
-            'bidPrice': [bid_price],
-            'bidSize': [bid_size],
-            'askPrice': [ask_price],
-            'askSize': [ask_size],
-            'midPrice': [mid_price],
-            'smartPrice': [smart_price]
-        }
- 
-        self.lock_data()
-        #Append the new row to the existing dataframe
-        self.market_data.append(pd.DataFrame.from_dict(new_row))
-        self.unlock_data()
-
-
     def process_timeseries_for_training(self, data, training_len, testing_len, training_step) :
         '''
         Process raw tick timeseries
@@ -161,7 +122,7 @@ class TradingEngine :
         processed_training_data["Response"] = list()
 
         limit = data_len - training_len - testing_len - 1
-        limit = 2 *  training_len
+        #limit = 2 *  training_len
 
         hold_count = 0
         up_count = 0
@@ -253,7 +214,7 @@ class TradingEngine :
         }
 
 
-    def optimize_model_params(self, data) :
+    def optimize_model_params(self) :
 
         params_dict = {
             "training_len": [800, 900, 1000, 1100, 1200],
@@ -277,7 +238,7 @@ class TradingEngine :
             training_len_p = params_dict["training_len"][index_a]
             testing_len_p = params_dict["testing_len"][index_b]
 
-            fitness = self.get_strategy_acuracy_on_params(data, training_len_p, testing_len_p, training_step, train_test_ratio )
+            fitness = self.get_strategy_acuracy_on_params(self.market_data, training_len_p, testing_len_p, training_step, train_test_ratio )
             
             print ("training_len: {}, testing_len: {}, acuracy: {}".format(training_len_p, testing_len_p, fitness))
 
@@ -295,6 +256,73 @@ class TradingEngine :
         print("TradingEngine check_after_prediction()")
 
 
+    def train(self) :
+        '''
+        @brief regenerate the predictive model on existing market data, and using current optimized parameters
+        '''
+
+        print("TradingEngine train()")
+        processed_data = self.process_timeseries_for_training(self.market_data, self.model_training_len, self.model_testing_len, self.model_training_step)
+        
+        X_train = processed_data[["Stdev", "Variance", "Slope", "Stderr", "Movement"]]
+        y_train = list(processed_data["Response"])
+
+        # clf_ada = AdaBoostClassifier()
+        # clf_ada.fit(X_train.values, y_train)
+
+        self.model = RandomForestClassifier(n_estimators=100, min_samples_split=2)
+        self.model.fit(X_train.values, y_train)
+
+
+    def on_market_tick(self, timestamp, symbol, bid_price, bid_size, ask_price, ask_size) :
+        '''!
+        @brief add new market info row
+        '''
+        #print("TradingEngine on_market_tick()")
+
+        smart_price = FinanceUtils.get_smart_price(bid_price, bid_size, ask_price, ask_size)
+        mid_price = FinanceUtils.get_mid_price(bid_price, ask_price)
+
+        # new_row = {
+        #     'timestamp': [timestamp],
+        #     'symbol': [symbol],
+        #     'weightedPrice': [0],
+        #     'bidPrice': [bid_price],
+        #     'bidSize': [bid_size],
+        #     'askPrice': [ask_price],
+        #     'askSize': [ask_size],
+        #     'midPrice': [mid_price],
+        #     'smartPrice': [smart_price]
+        # }
+ 
+        # new_row_dict = pd.DataFrame.from_dict(new_row)
+
+        self.lock_data()
+        #Append the new row to the existing dataframe
+
+        last_index = len(self.market_data.index)
+        # row_len = len(new_row_dict.index)
+
+        # print(str(self.market_data.tail()))
+        # self.market_data = self.market_data.append(new_row_dict, sort=False, inplace=True)
+        #self.market_data = self.market_data.append(new_row_dict, sort=False)
+        #self.market_data.reset_index(inplace=True)
+
+        self.market_data.loc[last_index] = [last_index, timestamp, symbol, 0, bid_price, bid_size, ask_price, ask_size, mid_price, smart_price]
+
+        # print(str(self.market_data.tail()))
+
+        # hist_len = len(self.market_data.index)
+
+        self.unlock_data()
+
+        if self.last_prediction_index > self.prediction_step :
+            self.predict()
+            self.last_prediction_index = 0
+            
+        else :
+            self.last_prediction_index += 1
+
     def predict(self) :
         '''!
         @brief Predicts next market movement on some period.
@@ -302,62 +330,73 @@ class TradingEngine :
         '''
         print("TradingEngine predict()")
 
-        training_len = 900
         hist_len = len(self.market_data.index)
 
         #subset data
-        observed_indices = list([i for i in range(training_len)])
-        observed_mid_prices = list(history_ts["midPrice"][hist_len - training_len:])
+        observed_indices = list([i for i in range(self.model_training_len)])
+        observed_mid_prices = list(self.market_data["midPrice"][hist_len - self.model_training_len:])
 
         stddev = stat.stdev(observed_mid_prices)
         variance = stat.variance(observed_mid_prices)
         linregress_obj = linregress(observed_indices, observed_mid_prices)
         training_movement = observed_mid_prices[-1] - observed_mid_prices[0]
 
+        prediction = self.model.predict([[stddev, variance, linregress_obj.slope, linregress_obj.stderr, training_movement]])
+        if len(prediction) == 0 :
+            print ("TrainingEngine Prediction failed")
+        else:
+            print ("prediction: {},  {}, {}, {}, {} --> {}".format(stddev, variance, linregress_obj.slope, linregress_obj.stderr, training_movement, prediction[0]))
+
+
 
     def commit_on_market(self, action) :
         print("TradingEngine commit_on_market()")
 
 
+    
+class ExchangeSimulator :
 
-# # %%
+
+    def __init__(self) :
+        print ("ExchangeSimulator __init__()")
+        self.engine = TradingEngine()
+        self.running = False
 
 
+    def simulate_0(self) :
+        print ("ExchangeSimulator simulate_0()")
+        # init the trading engine
+        self.engine.set_initial_data_from_csv("C:/Projects/QuantRat/data/btc_train.csv")
+        # self.engine.optimize_model_params()
+        self.engine.train()
 
+        # fake exchange data stream
+        train_data = pd.read_csv("C:/Projects/QuantRat/data/btc_test.csv")
+        train_data.dropna(inplace=True)
+        train_data = train_data[train_data["bidPrice"] != 0]
+        train_data = train_data[train_data["askPrice"] != 0]
+        train_data = train_data[train_data["weightedPrice"] != 0]
+        train_data.reset_index(inplace=True)
+
+        print("ExchangeSimulator simulating...")
+
+        for index, row in train_data.iterrows() :
+
+            timestamp = float(row["timestamp"])
+            bid_price = float(row["bidPrice"])
+            bid_size = float(row["bidSize"])
+            ask_price = float(row["askPrice"])
+            ask_size = float(row["askSize"])
+
+            # timestamp, symbol, bid_price, bid_size, ask_price, ask_size
+            self.engine.on_market_tick(timestamp, "ETHUSDT", bid_price, bid_size, ask_price, ask_size)
+
+        print("ExchangeSimulator ssimulation done")
     
 
+def run_simulator() :
+    simulator = ExchangeSimulator()
+    simulator.simulate_0()
 
 
-# # optimize_model_params(history_ts)
-
-# # %%
-# def on_market_tick(timestamp, symbol, bid_price, bid_size, ask_price, ask_size) :
-#     smart_price = get_smart_price(bid_price, bid_size, ask_price, ask_size)
-#     mid_price = get_mid_price(bid_price, ask_price)
-
-#     new_row = {
-#         'timestamp': timestamp,
-#         'symbol': symbol,
-#         'weightedPrice': 0,
-#         'bidPrice': bid_price,
-#         'bidSize': bid_size,
-#         'askPrice': ask_price,
-#         'askSize': ask_size,
-#         'midPrice': mid_price,
-#         'smartPrice': smart_price
-#     }
-
-# # %%
-# def predict_movement_strategy_0(history_ts) :
-
-#     training_len = 900
-#     hist_len = len(history_ts.index)
-
-#     #subset data
-#     observed_indices = list([i for i in range(training_len)])
-#     observed_mid_prices = list(history_ts["midPrice"][hist_len - training_len:])
-
-#     stddev = stat.stdev(observed_mid_prices)
-#     variance = stat.variance(observed_mid_prices)
-#     linregress_obj = linregress(observed_indices, observed_mid_prices)
-#     training_movement = observed_mid_prices[-1] - observed_mid_prices[0]
+run_simulator()

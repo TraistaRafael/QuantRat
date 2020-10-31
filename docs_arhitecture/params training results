@@ -1,0 +1,52 @@
+
+Run 25 parameter combinations
+0, 0
+training_len: 800, testing_len: 100, acuracy: {'adaboost': '0.46', 'random_forest': '0.54'}
+0, 1
+training_len: 900, testing_len: 100, acuracy: {'adaboost': '0.50', 'random_forest': '0.67'}
+0, 2
+training_len: 1000, testing_len: 100, acuracy: {'adaboost': '0.50', 'random_forest': '0.42'}
+0, 3
+training_len: 1100, testing_len: 100, acuracy: {'adaboost': '0.67', 'random_forest': '0.50'}
+0, 4
+training_len: 1200, testing_len: 100, acuracy: {'adaboost': '0.50', 'random_forest': '0.58'}
+1, 0
+training_len: 800, testing_len: 150, acuracy: {'adaboost': '0.38', 'random_forest': '0.38'}
+1, 1
+training_len: 900, testing_len: 150, acuracy: {'adaboost': '0.25', 'random_forest': '0.42'}
+1, 2
+training_len: 1000, testing_len: 150, acuracy: {'adaboost': '0.25', 'random_forest': '0.33'}
+1, 3
+training_len: 1100, testing_len: 150, acuracy: {'adaboost': '0.58', 'random_forest': '0.67'}
+1, 4
+training_len: 1200, testing_len: 150, acuracy: {'adaboost': '0.58', 'random_forest': '0.58'}
+2, 0
+training_len: 800, testing_len: 200, acuracy: {'adaboost': '0.50', 'random_forest': '0.75'}
+2, 1
+training_len: 900, testing_len: 200, acuracy: {'adaboost': '0.75', 'random_forest': '0.83'}
+2, 2
+training_len: 1000, testing_len: 200, acuracy: {'adaboost': '0.58', 'random_forest': '0.58'}
+2, 3
+training_len: 1100, testing_len: 200, acuracy: {'adaboost': '0.50', 'random_forest': '0.83'}
+2, 4
+training_len: 1200, testing_len: 200, acuracy: {'adaboost': '0.33', 'random_forest': '0.83'}
+3, 0
+training_len: 800, testing_len: 300, acuracy: {'adaboost': '0.33', 'random_forest': '0.50'}
+3, 1
+training_len: 900, testing_len: 300, acuracy: {'adaboost': '0.67', 'random_forest': '0.75'}
+3, 2
+training_len: 1000, testing_len: 300, acuracy: {'adaboost': '0.50', 'random_forest': '0.42'}
+3, 3
+training_len: 1100, testing_len: 300, acuracy: {'adaboost': '0.67', 'random_forest': '0.75'}
+3, 4
+training_len: 1200, testing_len: 300, acuracy: {'adaboost': '0.18', 'random_forest': '0.36'}
+4, 0
+training_len: 800, testing_len: 400, acuracy: {'adaboost': '0.58', 'random_forest': '0.58'}
+4, 1
+training_len: 900, testing_len: 400, acuracy: {'adaboost': '0.67', 'random_forest': '0.92'}
+4, 2
+training_len: 1000, testing_len: 400, acuracy: {'adaboost': '0.50', 'random_forest': '0.58'}
+4, 3
+training_len: 1100, testing_len: 400, acuracy: {'adaboost': '0.45', 'random_forest': '0.45'}
+4, 4
+training_len: 1200, testing_len: 400, acuracy: {'adaboost': '0.45', 'random_forest': '0.36'}s
