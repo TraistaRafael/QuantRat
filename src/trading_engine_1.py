@@ -227,8 +227,8 @@ class ReTradingEngine:
     def re_training_strategy_test_fixed_size(self, csv_path):
         self.set_initial_data_from_csv(csv_path)
 
-        model_training_len = 800
-        model_testing_len = 200
+        model_training_len = 1200
+        model_testing_len = 400
         model_training_step = 50
 
         processed_data = self.process_timeseries_for_training(self.market_data, model_training_len, model_testing_len, model_training_step)
@@ -239,12 +239,12 @@ class ReTradingEngine:
             model_training_step,
             len(processed_data.index)))
 
-        self.run_re_training_strategy_on_processed_data(processed_data, 40)
-        self.run_re_training_strategy_on_processed_data(processed_data, 50)
         self.run_re_training_strategy_on_processed_data(processed_data, 60)
-        self.run_re_training_strategy_on_processed_data(processed_data, 70)
-        self.run_re_training_strategy_on_processed_data(processed_data, 80)
-        self.run_re_training_strategy_on_processed_data(processed_data, 90)
+        # self.run_re_training_strategy_on_processed_data(processed_data, 50)
+        # self.run_re_training_strategy_on_processed_data(processed_data, 60)
+        # self.run_re_training_strategy_on_processed_data(processed_data, 70)
+        # self.run_re_training_strategy_on_processed_data(processed_data, 80)
+        # self.run_re_training_strategy_on_processed_data(processed_data, 90)
 
         # processed_data_len = len(processed_data.index)
 
@@ -332,25 +332,24 @@ class ReTradingEngine:
             accuracy_evolution.append(float(rf_accuracy_avg / test_count))
 
             # print("ada: {}   rf: {}".format(ada_score, rf_score))
-            # print("{}  current accuracy: ada: {}   rf: {}".format(subset_start_index, ada_accuracy_avg / test_count,
-            #                                                       rf_accuracy_avg / test_count))
+            print("{}  current accuracy: ada: {}   rf: {}".format(subset_start_index, ada_accuracy_avg / test_count,
+                                                                   rf_accuracy_avg / test_count))
 
             subset_start_index += 1
 
             # if subset_length > 50:
-            subset_length += 1
+            # subset_length += 1
 
         # ada_accuracy_avg /= test_count
         rf_accuracy_avg /= test_count
 
         print("final accuracy: ada: {}   rf: {}".format(ada_accuracy_avg, rf_accuracy_avg))
 
-        # prediction_indices = list([i for i in range(test_count)])
-
-        # plt.plot(prediction_indices, success_predictions, "*g")
-        # plt.plot(prediction_indices, fail_predictions, "*r")
-        # plt.plot(prediction_indices, accuracy_evolution, "-m")
-        # plt.show()
+        prediction_indices = list([i for i in range(test_count)])
+        plt.plot(prediction_indices, success_predictions, "*g")
+        plt.plot(prediction_indices, fail_predictions, "*r")
+        plt.plot(prediction_indices, accuracy_evolution, "-m")
+        plt.show()
 
         return rf_accuracy_avg
 
