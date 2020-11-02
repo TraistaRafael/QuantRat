@@ -239,11 +239,24 @@ class ReTradingEngine:
             model_training_step,
             len(processed_data.index)))
 
-        processed_data_len = len(processed_data.index)
+        self.run_re_training_strategy_on_processed_data(processed_data, 40)
+        self.run_re_training_strategy_on_processed_data(processed_data, 50)
+        self.run_re_training_strategy_on_processed_data(processed_data, 60)
+        self.run_re_training_strategy_on_processed_data(processed_data, 70)
+        self.run_re_training_strategy_on_processed_data(processed_data, 80)
+        self.run_re_training_strategy_on_processed_data(processed_data, 90)
 
+        # processed_data_len = len(processed_data.index)
+
+
+
+    # ---------------------------------------------------------------------------------------------------
+    def run_re_training_strategy_on_processed_data(self, processed_data, subset_length):
         # Test on more subsets
         # context_tt_ratio = 0.95
-        subset_length = int(processed_data_len / 2)
+        # subset_length = 58  # int(processed_data_len / 2)
+        print("run_re_training_strategy_on_processed_data subset_length {}".format(subset_length))
+        processed_data_len = len(processed_data.index)
 
         subset_start_index = 0
 
@@ -257,7 +270,7 @@ class ReTradingEngine:
         fail_predictions = list()
         accuracy_evolution = list()
 
-        while subset_start_index + subset_length < processed_data_len and subset_start_index < 100:
+        while subset_start_index + subset_length < processed_data_len:
             # a_millis = current_time_millis()
 
             processed_data_subset = processed_data[subset_start_index:subset_start_index + subset_length]
@@ -278,8 +291,6 @@ class ReTradingEngine:
 
             train_ts = processed_data_subset[processed_data_subset.index < train_count]
             test_ts = processed_data_subset[processed_data_subset.index >= train_count]
-
-
 
             # print ("train_ts: {}   test_ts: {}".format(len(train_ts.index), len(test_ts.index)))
 
@@ -321,24 +332,27 @@ class ReTradingEngine:
             accuracy_evolution.append(float(rf_accuracy_avg / test_count))
 
             # print("ada: {}   rf: {}".format(ada_score, rf_score))
-            print("{}  current accuracy: ada: {}   rf: {}".format(subset_start_index, ada_accuracy_avg / test_count, rf_accuracy_avg / test_count))
+            # print("{}  current accuracy: ada: {}   rf: {}".format(subset_start_index, ada_accuracy_avg / test_count,
+            #                                                       rf_accuracy_avg / test_count))
 
             subset_start_index += 1
+
+            # if subset_length > 50:
+            subset_length += 1
 
         # ada_accuracy_avg /= test_count
         rf_accuracy_avg /= test_count
 
         print("final accuracy: ada: {}   rf: {}".format(ada_accuracy_avg, rf_accuracy_avg))
 
-        prediction_indices = list([i for i in range(test_count)])
+        # prediction_indices = list([i for i in range(test_count)])
 
-        plt.plot(prediction_indices, success_predictions, "*g")
-        plt.plot(prediction_indices, fail_predictions, "*r")
-        plt.plot(prediction_indices, accuracy_evolution, "-m")
-        plt.show()
+        # plt.plot(prediction_indices, success_predictions, "*g")
+        # plt.plot(prediction_indices, fail_predictions, "*r")
+        # plt.plot(prediction_indices, accuracy_evolution, "-m")
+        # plt.show()
 
-        print("done")
-
+        return rf_accuracy_avg
 
     # ---------------------------------------------------------------------------------------------------
     def process_timeseries_for_training(self, data, training_len, testing_len, training_step):
@@ -509,7 +523,7 @@ class ReTradingEngine:
         history_ts.dropna(inplace=True)
         history_ts = history_ts[history_ts["bidPrice"] != 0]
         history_ts = history_ts[history_ts["askPrice"] != 0]
-        history_ts = history_ts[history_ts["weightedPrice"] != 0]
+        # history_ts = history_ts[history_ts["weightedPrice"] != 0]
         history_ts.reset_index(inplace=True)
 
         print("TradingEngine set intial market data len: {}".format(len(history_ts.index)))
