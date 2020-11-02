@@ -49,4 +49,4 @@ training_len: 1000, testing_len: 400, acuracy: {'adaboost': '0.50', 'random_fore
 4, 3
 training_len: 1100, testing_len: 400, acuracy: {'adaboost': '0.45', 'random_forest': '0.45'}
 4, 4
-training_len: 1200, testing_len: 400, acuracy: {'adaboost': '0.45', 'random_forest': '0.36'}s
+training_len: 1200, testing_len: 400, acuracy: {'adaboost': '0.45', 'random_forest': '0.36'}
