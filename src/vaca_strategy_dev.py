@@ -29,8 +29,8 @@ def vaca_strategy(csv_path) :
     # market_data[["askPrice", "bidPrice", "midPrice"]].plot()
 
 
-    model_training_len = 800
-    model_testing_len = 150
+    model_training_len = 100
+    model_testing_len = 20
     model_training_step = 50
 
     processed_data = process_timeseries_for_training(market_data, model_training_len, model_testing_len, model_training_step)

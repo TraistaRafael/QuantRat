@@ -10,7 +10,7 @@ from trading_engine_1 import ReTradingEngine
 import Trading
 import vaca_strategy_dev
 
-vaca_strategy_dev.vaca_strategy("C:/Projects/QuantRat/data/ethusd_sat_29k.csv")
+vaca_strategy_dev.vaca_strategy("C:/Projects/QuantRat/data/ethusd_3_nov.csv")
 
 
 # Trading.run_simulator()
