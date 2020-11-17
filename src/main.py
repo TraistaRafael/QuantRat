@@ -9,9 +9,12 @@ Please see the LICENSE.txt
 from trading_engine_1 import ReTradingEngine
 import Trading
 import vaca_strategy_dev
+import cainele_alb
+import calul_mov
 
-vaca_strategy_dev.vaca_strategy("C:/Projects/QuantRat/data/ethusd_3_nov.csv")
-
+# vaca_strategy_dev.vaca_strategy("C:/Projects/QuantRat/data/ethusd_3_nov.csv")
+# cainele_alb.run("C:/Projects/QuantRat/data/record_ETHUSDT_3_mb.csv")
+calul_mov.run()
 
 # Trading.run_simulator()
 
