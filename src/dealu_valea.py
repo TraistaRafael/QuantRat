@@ -13,6 +13,8 @@ from ta.volatility import BollingerBands
 from ta.momentum import StochasticOscillator
 from ta.momentum import StochRSIIndicator
 from ta.trend import EMAIndicator
+from ta.volatility import KeltnerChannel
+
 
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
@@ -66,76 +68,6 @@ def tick_to_minute(df_tick):
             last_minute_timestamp = current_timestamp
 
     return df_minute
-
-def test_bollinger(df):
-    # Initialize Bollinger Bands Indicator
-    indicator_bb = BollingerBands(close=df["Close"], n=20, ndev=2)
-
-    # Add Bollinger Bands features
-    df['bb_bbm'] = indicator_bb.bollinger_mavg()
-    df['bb_bbh'] = indicator_bb.bollinger_hband()
-    df['bb_bbl'] = indicator_bb.bollinger_lband()
-
-    # Add Bollinger Band high indicator
-    df['bb_bbhi'] = indicator_bb.bollinger_hband_indicator()
-
-    # Add Bollinger Band low indicator
-    df['bb_bbli'] = indicator_bb.bollinger_lband_indicator()
-
-    # Add Width Size Bollinger Bands
-    df['bb_bbw'] = indicator_bb.bollinger_wband()
-
-    # Add Percentage Bollinger Bands
-    df['bb_bbp'] = indicator_bb.bollinger_pband()
-
-    df[["Close", "bb_bbm", "bb_bbh", "bb_bbl"]].plot()
-
-
-def plot(df, buy_signals = None):
-    fig, axs = plt.subplots(2)
-
-    axs[0].plot(df["Close"], "-b", label="Close")
-    axs[0].plot(df["EMA50"], "--c", label="EMA50")
-    axs[0].plot(df["EMA100"], "--m", label="EMA1000")
-
-    # Plot buy signals
-    if buy_signals is not None:
-        axs[0].plot(buy_signals[0], buy_signals[1], "*r", label="BUY SIGNALS")
-
-    axs[0].legend(loc="upper right")
-
-
-    axs[1].plot(df["Stochastic"], "--b", label="SO 5-3")
-    # axs[1].plot(df["StochasticRSI"], "--r", label="SORSI 5-3-3")
-    axs[1].plot([0, len(df.index)], [20, 20], "--y")
-    axs[1].plot([0, len(df.index)], [80, 80], "--y")
-    axs[1].legend(loc="upper right")
-    plt.show()
-
-    # fig = go.Figure(data=[go.Candlestick(x=df.index,
-    #                                      open=df['Open'],
-    #                                      high=df['High'],
-    #                                      low=df['Low'],
-    #                                      close=df['Close'])])
-    # fig.show()
-
-def add_indicators(df):
-    # Add EMA 50
-    ema_50 = EMAIndicator(df["Close"], 50)
-    df["EMA50"] = ema_50.ema_indicator()
-
-    # Add EMA 100
-    ema_100 = EMAIndicator(df["Close"], 100)
-    df["EMA100"] = ema_100.ema_indicator()
-
-    # Add Stochastic RSI Oscillator
-    # stochasticRSI = StochRSIIndicator(df["Close"], 5, 3, 3)
-    # df["StochasticRSI"] = stochasticRSI.stochrsi()
-
-    # Add Stochastic Oscillator
-    stochastic = StochasticOscillator(df["High"], df["Low"], df["Close"], 5, 3)
-    df["Stochastic"] = stochastic.stoch()
-
 
 def analyze(df):
     buy_index_list = list()
@@ -248,6 +180,11 @@ def compute_profitability(df, buy_indices):
 
     print("Done")
 
+def get_inflexion_points(df):
+    inflexion_points = []
+
+    # for val in df["EMA"]:
+
 
 def run():
     # Load datas
@@ -256,16 +193,34 @@ def run():
     # df = dropna(df)
     # df = tick_to_candle(df)
 
-    df = pd.read_csv("C:/Projects/QuantRat/data/IVE_bidask1min.txt", nrows=200000)
-    df.reset_index(inplace=True)
+    df = pd.read_csv("C:/Projects/QuantRat/data/IVE_bidask1min.txt", nrows=500)
     # df["Close"].plot()
 
-    add_indicators(df)
+    # Add Keltner channel
+    k_channel = KeltnerChannel(df["High"], df["Low"], df["Close"], 10, 10, ov=False)
+    df["ChannelHigh"] = k_channel.keltner_channel_hband()
+    df["ChannelLow"] = k_channel.keltner_channel_lband()
+    df["ChannelMid"] = k_channel.keltner_channel_mband()
 
-    buy_signals = analyze(df)
+    # Add EMA
+    # ema_slow = EMAIndicator(df["Close"], 20)
+    # ema_fast = EMAIndicator(df["Close"], 10)
+    # df["EMA_slow"] = ema_slow.ema_indicator()
+    # df["EMA_fast"] = ema_fast.ema_indicator()
 
-    # plot(df, buy_signals)
+    # Plot
+    plt.plot(df["Close"], "-b", label="Close")
+    plt.plot(df["ChannelHigh"], "--c", label="K high band")
+    plt.plot(df["ChannelLow"], "--y", label="K low band")
+    plt.plot(df["ChannelMid"], "--m", label="K mid band")
 
-    compute_profitability(df, buy_signals[0])
+    # plt.plot(df["EMA_fast"], "-r", label="EMA fast")
+    # plt.plot(df["EMA_slow"], "-g", label="EMA slow")
+    # plt.plot(df["EMA10"], "--m", label="EMA10")
+    plt.legend(loc="upper right")
+    plt.show()
+
+
+    # compute_profitability(df, buy_signals[0])
 
     print("ready")
